@@ -5,10 +5,8 @@
             [clojure.tools.namespace.file :as ns-file]
             [clojure.tools.namespace.track :as ns-track]
             [clojure.tools.namespace.find :as ns-find]
-            [clojure.tools.namespace.parse :as parse]
             [clojure.tools.namespace.dependency :as ns-dep]
-            [rhizome.viz :as viz])
-  (:import [java.io PushbackReader]))
+            [rhizome.viz :as viz]))
 
 (defn- add-image-extension [name]
   (str name ".png"))
