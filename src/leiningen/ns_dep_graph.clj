@@ -15,8 +15,8 @@
 
 (defn- hash-user-arguments [args options]
   (try (apply hash-map args)
-  (catch Exception e (do (println "WARNING: Optional argument missing a corresponding value. Defaulting."))
-                          options)))
+       (catch Exception e (do (println "WARNING: Optional argument missing a corresponding value. Defaulting."))
+              options)))
 
 (defn- build-arguments [args]
   (let [options {"-name"     "ns-dep-graph"
@@ -44,15 +44,15 @@
                            source-files))
         part-of-project? (partial contains? ns-names)
         nodes (filter part-of-project? (ns-dep/nodes dep-graph))]
-      (loop [name file-name
-             counter 1]
-          (if (.exists (io/file (add-image-extension name)))
-              (recur (str file-name counter) (inc counter))
-              (viz/save-graph
-               nodes
-               #(filter part-of-project? (ns-dep/immediate-dependencies dep-graph %))
-               :node->descriptor (fn [x] {:label x})
-               :options {:dpi 72}
-               :filename (add-image-extension name))))))
+    (loop [name file-name
+           counter 1]
+      (if (.exists (io/file (add-image-extension name)))
+        (recur (str file-name counter) (inc counter))
+        (viz/save-graph
+         nodes
+         #(filter part-of-project? (ns-dep/immediate-dependencies dep-graph %))
+         :node->descriptor (fn [x] {:label x})
+         :options {:dpi 72}
+         :filename (add-image-extension name))))))
 
 ;; TODO: maybe add option to show dependencies on external namespaces as well.
