@@ -8,25 +8,13 @@
             [clojure.tools.namespace.dependency :as ns-dep]
             [rhizome.viz :as viz]))
 
-(defn- add-image-extension [name]
-  (str name ".png"))
-
-(defn- hash-user-arguments [args options]
-  (try (apply hash-map args)
-       (catch Exception e (do (println "WARNING: Optional argument missing a corresponding value. Defaulting."))
-              options)))
-
-(defn- build-arguments [args]
-  (let [options {"-name"     "ns-dep-graph"
-                 "-platform" ":clj"}
-        hashed-args (hash-user-arguments args options)
-        valid-options (remove nil? (map #(find hashed-args (first %)) options))]
-    (merge options (into {} (filter (comp some? val) valid-options)))))
+(def default-options {"-name"     "ns-dep-graph"
+                      "-platform" ":clj"})
 
 (defn ns-dep-graph
   "Create a namespace dependency graph and save it as either ns-dep-graph or the supplied name."
   [project & args]
-  (let [built-args (build-arguments args)
+  (let [built-args (merge default-options (apply hash-map args))
         file-name (get built-args "-name")
         platform (case (edn/read-string (get built-args "-platform"))
                    :clj ns-find/clj
@@ -44,13 +32,13 @@
         nodes (filter part-of-project? (ns-dep/nodes dep-graph))]
     (loop [name file-name
            counter 1]
-      (if (.exists (io/file (add-image-extension name)))
+      (if (.exists (io/file (str name ".png")))
         (recur (str file-name counter) (inc counter))
         (viz/save-graph
          nodes
          #(filter part-of-project? (ns-dep/immediate-dependencies dep-graph %))
          :node->descriptor (fn [x] {:label x})
          :options {:dpi 72}
-         :filename (add-image-extension name))))))
+         :filename (str name ".png"))))))
 
 ;; TODO: maybe add option to show dependencies on external namespaces as well.
